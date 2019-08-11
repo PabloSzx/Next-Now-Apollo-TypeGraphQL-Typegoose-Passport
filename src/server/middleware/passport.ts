@@ -1,43 +1,42 @@
+import connect_mongo from "connect-mongo";
 import { Router } from "express";
 import ExpressSession from "express-session";
+import { ObjectId } from "mongodb";
 import passport from "passport";
-import { Repository } from "typeorm";
-import { TypeormStore } from "typeorm-store";
+import { InstanceType } from "typegoose";
 
 import { WRONG_INFO } from "../consts";
 import { connection } from "../db";
-import { Session, User } from "../entities";
+import { User, UserModel } from "../entities";
 
 export const auth = Router();
 
-function SessionMiddleware(repository: Repository<Session>) {
-  return ExpressSession({
+const MongoStore = connect_mongo(ExpressSession);
+
+auth.use(
+  ExpressSession({
     secret: "tF47Oz#R$v2oCT&gooX%QclBNFa$E8OosV^vBebkYVro8$5DB1a",
     resave: false,
     saveUninitialized: false,
     rolling: true,
     cookie: { maxAge: 86400000, secure: false },
-    store: new TypeormStore({ repository }),
-  });
-}
-
-auth.use(async (req, res, next) => {
-  SessionMiddleware((await connection).getRepository(Session))(req, res, next);
-});
+    store: new MongoStore({
+      mongooseConnection: connection,
+    }),
+  })
+);
 
 auth.use(passport.initialize());
 auth.use(passport.session());
 
-passport.serializeUser<User, number>((user, cb) => {
-  if (user) cb(null, user.id);
+passport.serializeUser<InstanceType<User>, ObjectId>((user, cb) => {
+  if (user) cb(null, user._id);
   else cb(WRONG_INFO);
 });
 
-passport.deserializeUser<User, number>(async (id, done) => {
+passport.deserializeUser<InstanceType<User>, ObjectId>(async (_id, done) => {
   try {
-    const UserRepository = (await connection).getRepository(User);
-
-    const user = await UserRepository.findOne(id);
+    const user = await UserModel.findById(_id);
 
     if (user) {
       done(null, user);

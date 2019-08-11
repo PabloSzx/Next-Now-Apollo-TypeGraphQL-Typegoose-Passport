@@ -1,0 +1,9 @@
+{
+  "env": {
+    "MONGO_URL": "@mongo_url"
+  },
+  "builds": [
+    { "src": "api/**/*.ts", "use": "@now/node@canary" },
+    { "src": "package.json", "use": "@now/next" }
+  ]
+}

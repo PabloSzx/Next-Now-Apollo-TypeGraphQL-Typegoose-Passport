@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import { createContext, FunctionComponent, useEffect, useState } from "react";
 import { useQuery } from "react-apollo";
 
-import { User } from "../../../../server";
+import { User } from "../../../../server/entities";
 
 export const AuthContext = createContext({
   user: null,

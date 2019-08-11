@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { InstanceType } from "typegoose";
 
 import { User } from "../entities";
 
@@ -16,7 +17,7 @@ const promisifiedLogin = <T = any, S = any>(
 
 export const buildContext = <OptionsType = any>({ req }: { req: Request }) => {
   return {
-    login: (user: User, options?: OptionsType) =>
+    login: (user: InstanceType<User>, options?: OptionsType) =>
       promisifiedLogin(req, user, options),
     logout: () => {
       if (req.session) {
@@ -26,7 +27,7 @@ export const buildContext = <OptionsType = any>({ req }: { req: Request }) => {
     },
     isAuthenticated: () => req.isAuthenticated(),
     isUnauthenticated: () => req.isUnauthenticated(),
-    get user(): User {
+    get user(): InstanceType<User> {
       return req.user;
     },
   };

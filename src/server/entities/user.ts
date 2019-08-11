@@ -1,26 +1,33 @@
+import { ObjectId } from "mongodb";
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { InstanceType, prop as Property, Typegoose } from "typegoose";
+
+import { connection } from "../db";
 
 @ObjectType()
-@Entity()
-export class User {
+export class User extends Typegoose {
   @Field(_type => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
+  readonly _id: ObjectId;
 
   @Field()
-  @Column()
+  @Property()
   email: string;
 
   @Field()
-  @Column({ default: "Default" })
+  @Property({ default: "Default" })
   name: string;
 
   @Field()
-  @Column()
+  @Property()
   password: string;
 
   @Field()
-  @Column({ default: false })
+  @Property({ default: false })
   admin: boolean;
 }
+
+export const UserModel = new User().getModelForClass(User, {
+  existingConnection: connection,
+});
+
+export type UserInstance = InstanceType<typeof UserModel>;
