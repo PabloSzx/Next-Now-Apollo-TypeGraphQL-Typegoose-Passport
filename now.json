@@ -5,5 +5,15 @@
   "builds": [
     { "src": "api/**/*.ts", "use": "@now/node@canary" },
     { "src": "package.json", "use": "@now/next" }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
   ]
 }
